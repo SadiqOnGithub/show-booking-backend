@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>FlipTree | Show Booking </title>
+    <link rel="shortcut icon" href="https://fliptree.com/assets/icon/favicon-16x16.png"  type="image/x-icon" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css" />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Show Booking</h1>
+      <form action="/api/theater" method="post">
+        <h3>Add A Theater.</h3>
+        <p><code>POST /api/theater</code></p>
+        <input id="uname" type="text" name="theaterName" placeholder="theaterName" />
+        <input type="submit" value="Submit" />
+      </form>
+      <form action="/api/movie" method="post">
+        <h3>Add A Movie.</h3>
+        <p><code>POST /api/movie</code></p>
+        <input id="uname" type="text" name="movieName" placeholder="movieName" />
+        <input type="submit" value="Submit" />
+      </form>
+      <form action="/api/show" method="post">
+        <h3>Add A Show.</h3>
+        <p><code>POST /api/show</code></p>
+        <input id="uname" type="text" name="showName" placeholder="showName" />
+        <input type="submit" value="Submit" />
+      </form>
+      <!-- <form id="booking-form" method="post">
+        <h3>Add bookings</h3>
+        <p><code>POST /api/users/:_id/bookings</code></p>
+        <input id="uid" type="text" name=":_id" placeholder=":_id" />
+        <input id="desc" type="text" name="description" placeholder="description*" />
+        <input type="submit" value="Submit" />
+      </form> -->
+      
+    </div>
+    <script>
+      const bookingForm = document.getElementById("booking-form");
+
+      // bookingForm.addEventListener("submit", () => {
+      //   const userId = document.getElementById("uid").value;
+      //   bookingForm.action = `/api/users/${userId}/bookings`;
+
+      //   bookingForm.submit();
+      // });
+    </script>
+  </body>
+</html>
