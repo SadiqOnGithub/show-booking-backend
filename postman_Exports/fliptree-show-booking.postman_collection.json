@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"theaterName\": \"IMAX SelectCity\",\r\n    \"location\": \"Saket\"\r\n}",
+					"raw": "{\r\n    \"theaterName\": \"PVR Anupam\",\r\n    \"seatNames\": [\"a1\", \"a2\", \"a3\", \"a4\"],\r\n    \"location\": \"Saket\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -70,7 +70,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\"movieName\": \"X-men 4\",\r\n\"theaterName\": \"PVR Anupam\",\r\n\"showName\": \"night\"\r\n}",
+					"raw": "{\r\n\"movieName\": \"X-men 4\",\r\n\"theaterName\": \"PVR Anupam\",\r\n\"showName\": \"nighty\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -99,7 +99,36 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\t\"bookingName\": \"minaz\",\r\n\t\"theaterName\": \"PVR Anupam\",\r\n\t\"movieName\": \"X-men\",\r\n\t\"showName\": \"evenings\"\r\n}",
+					"raw": "{\r\n    \"bookingName\": \"afzal\",\r\n\t\"theaterName\": \"Wave SelectCity\",\r\n    \"seatName\": \"a2\",\r\n\t\"movieName\": \"X-men\",\r\n\t\"showName\": \"evening\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/booking",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"booking"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"bookingId\": \"63c8323338663d5b9f334067\",\r\n    \"bookingName\": \"syed afzal ali\",\r\n\t\"theaterName\": \"Wave SelectCity\",\r\n    \"seatName\": \"a3\",\r\n\t\"movieName\": \"X-men\",\r\n\t\"showName\": \"evening\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

@@ -2,37 +2,38 @@ const Theater = require('../model/theater');
 const Movie = require('../model/movie');
 const Show = require('../model/show');
 const Booking = require('../model/booking');
+const Seat = require('../model/seat');
 
 
 // post a theater
 const postTheater = async (req, res) => {
 
-	// get theaterData
-	const { body: { theaterName }, body: theaterData } = req
+  // get theaterData
+  const { body: { theaterName }, body: theaterData } = req
 
-	try {
-		// if already exist -> send error msg
-		
-		if (theaterData) {
-			const isTheaterExist = await Theater.exists({ theaterName })
-			if (isTheaterExist) return res.json({ error: "theater already exist" })
-		}
-		
+  try {
+    // if already exist -> send error msg
 
-		// send theaterData to database
-		const addedTheater = await Theater.create(theaterData);
+    if (theaterData) {
+      const isTheaterExist = await Theater.exists({ theaterName })
+      if (isTheaterExist) return res.json({ error: "theater already exist" })
+    }
 
 
-		// if success full then then success msg
-		res.json(addedTheater)
+    // send theaterData to database
+    const addedTheater = await Theater.create(theaterData).lean();
 
 
-	} catch (error) {
-		// if err send response
-		console.log(error.message)
-		console.log(error.stack)
-		res.status(400).json({ error: error.message })
-	}
+    // if success full then then success msg
+    addedTheater && res.json(addedTheater)
+
+
+  } catch (error) {
+    // if err send response
+    console.log(error.message)
+    console.log(error.stack)
+    res.status(400).json({ error: error.message })
+  }
 
 }
 
@@ -40,39 +41,63 @@ const postTheater = async (req, res) => {
 // post a movie
 const postMovie = async (req, res) => {
 
-	// get movieData
-	const { body: { movieName, theaterName, showName }, body: movieData } = req
+  // get movieData
+  const { body: { movieName, theaterName, showName }, body: movieData } = req
 
-	try {
-		// if already exist -> send error msg
+  try {
+    // if already exist -> send error msg
 
-		if (movieData) {
-			const isShowExist = await Show.exists({ showName })
-			if (!isShowExist) return res.json({ error: "show don't exist" })
+    if (Object.keys(movieData).length > 0) {
 
-			const isTheaterExist = await Theater.exists({ theaterName })
-			if (!isTheaterExist) return res.json({ error: "theater don't exist" })
-			
-			const isMovieExist = await Movie.exists({ movieName })
-			if (isMovieExist) return res.json({ error: "movie already exist" })
+      const isTheaterExist = await Theater.exists({ theaterName })
+      // what if theater don't exist?
+      if (!isTheaterExist) {
+        const theatersData = await Theater.find()
+        const theatersNameList = theatersData.reduce((a, c) => [...a, c.theaterName], [])
+        return res.json({
+          error: `theater '${theaterName}' don't exist`,
+          "available theater names": theatersNameList
+        })
+      }
 
-		}
+      const isShowExist = await Show.exists({ showName })
+      // what if show don't exist?
+      if (!isShowExist) {
+        const showsData = await Show.find()
+        const showsNameList = showsData.reduce((a, c) => [...a, c.showName], [])
+        return res.json({
+          error: `show '${showName}' don't exist`,
+          "available show names": showsNameList
+        })
+      }
+
+      const isMovieExist = await Movie.exists({ movieName })
+      // what if movie ALREADY exist?
+      if (isMovieExist) return res.json({ error: `movie ${movieName} already exist` })
+
+    }
+    // what if someone has send a bad request?
+      //  like an empty object ?
+    else {
+      return res.status(400).json({
+        error: "please enter correct information"
+      })
+    }
+
+    // send movieData to database
+    const addedMovie = await Movie.create(movieData).lean();
 
 
-		// send movieData to database
-		const addedMovie = await Movie.create(movieData);
+    // if success then then success msg
+    res.json(addedMovie)
 
 
-		// if success then then success msg
-		res.json(addedMovie)
-
-
-	} catch (error) {
-		// if err send response
-		console.log(error.message)
-		console.log(error.stack)
-		res.status(400).json({ error: error.message })
-	}
+  } catch (error) {
+    // if err send response
+    console.log(error.message)
+    console.log(error.stack)
+    res.status(400).json({ error: error.message })
+  }
 
 }
 
@@ -80,30 +105,30 @@ const postMovie = async (req, res) => {
 // post a show
 const postShow = async (req, res) => {
 
-	// get showData
-	const { body: { showName },  body: showData} = req
+  // get showData
+  const { body: { showName }, body: showData } = req
 
-	try {
-		if (showData) {
-			const isShowExist = await Show.exists({showName})
-			if (isShowExist) return res.json({error: "show already exist"})
-		}
-
-
-		// send showData to database
-		const addedShow = await Show.create(showData);
+  try {
+    if (showData) {
+      const isShowExist = await Show.exists({ showName })
+      if (isShowExist) return res.json({ error: "show already exist" })
+    }
 
 
-		// if success full then then success msg
-		res.json(addedShow)
+    // send showData to database
+    const addedShow = await Show.create(showData).lean();
 
 
-	} catch (error) {
-		// if err send response
-		console.log(error.message)
-		console.log(error.stack)
-		res.status(400).json({ error: error.message })
-	}
+    // if success full then then success msg
+    res.json(addedShow)
+
+
+  } catch (error) {
+    // if err send response
+    console.log(error.message)
+    console.log(error.stack)
+    res.status(400).json({ error: error.message })
+  }
 
 }
 
@@ -111,17 +136,117 @@ const postShow = async (req, res) => {
 // book a booking
 const postBooking = async (req, res) => {
 
-	// get bookingData
-	const { body: { bookingName, theaterName, movieName, showName }, body: bookingData } = req
+  // get bookingData
+  const { body: { bookingName, theaterName, seatName: seatNames, movieName, showName }, body: bookingData } = req
 
-	const bookedString = `${theaterName}/${movieName}/${showName}/`;
+  const bookedString = `${theaterName}/${seatNames}/${movieName}/${showName}/`;
+
+  try {
+    // if already exist -> send error msg
+
+    if (Object.keys(bookingData).length > 0) {
+
+      const isTheaterExist = await Theater.exists({ theaterName })
+      // what if theater don't exist?
+      if (!isTheaterExist) {
+        const theatersData = await Theater.find()
+        const theatersNameList = theatersData.reduce((a, c) => [...a, c.theaterName], [])
+        return res.json({
+          error: `theater '${theaterName}' don't exist`,
+          "available theater names": theatersNameList
+        })
+      }
+
+      // what if seat don't exist?
+      else {
+        const isSeatExist = await Theater.exists({ theaterName, seatNames })
+        if (!isSeatExist) {
+          const { seatNames: expectedSeats } = await Theater.findOne({ theaterName })
+          console.log({expectedSeats});
+
+          return res.status(400).json({ 
+            error: `seat name ${seatNames} don't exist`,
+            "available seats names": expectedSeats
+            
+           })
+        }
+      }
+
+      const isMovieExist = await Movie.exists({ movieName })
+      // what if movie don't exist?
+      if (!isMovieExist) {
+        const moviesData = await Movie.find()
+        const moviesNameList = moviesData.reduce((a, c) => [...a, c.movieName], [])
+        return res.json({
+          error: `movie '${movieName}' don't exist`,
+          "available movie names": moviesNameList
+        })
+      }
+
+      const isShowExist = await Show.exists({ showName })
+      // what if show don't exist?
+      if (!isShowExist) {
+        const showsData = await Show.find()
+        const showsNameList = showsData.reduce((a, c) => [...a, c.showName], [])
+        return res.json({
+          error: `show '${showName}' don't exist`,
+          "available show names": showsNameList
+        })
+      }
+
+      const isBookingExist = await Booking.exists({ bookedString })
+      // what if booking ALREADY exist?
+      if (isBookingExist) return res.json({ error: "booking already exist" })
+
+    }
+    // what if someone has send a bad request?
+      //  like an empty object ?
+    else {
+      return res.status(400).json({
+        error: "please enter correct information"
+      })
+    }
+
+    // adding bookedString to booking Data
+    bookingData.bookedString = bookedString;
+
+    // send bookingData to database
+    const addedBooking = await Booking.create(bookingData).lean();
+
+
+    // if success then then success msg
+    res.json(addedBooking)
+
+
+  } catch (error) {
+    // if err send response
+    console.log(error.message)
+    console.log(error.stack)
+    res.status(400).json({ error: error.message })
+  }
+
+};
+
+
+// edit the booking
+const editBooking = async (req, res) => {
+
+	// get bookingData
+	const { body: { bookingId, theaterName, seatName: seatNames, movieName, showName }, body: bookingData } = req
+
+	const bookedString = `${theaterName}/${seatNames}/${movieName}/${showName}/`;
 
 	try {
+		
 		// if already exist -> send error msg
+		if (Object.keys(bookingData).length > 0) {
 
-		if (bookingData) {
+			const isBookingWithSameIdExist = await Booking.exists({ _id: bookingId }).lean()
+			// what if bookingId don't exist?
+			if (!isBookingWithSameIdExist) return res.status(404).json({ error: `no booking exist by ${bookingId}`})
 			
 			const isTheaterExist = await Theater.exists({ theaterName })
+			// what if theater don't exist?
 			if (!isTheaterExist) {
 				const theatersData = await Theater.find()
 				const theatersNameList = theatersData.reduce((a, c) => [...a, c.theaterName], [])
@@ -130,8 +255,24 @@ const postBooking = async (req, res) => {
 					"available theater names": theatersNameList
 				})
 			}
-			
+
+			// what if seat don't exist?
+			else {
+				const isSeatExist = await Theater.exists({ theaterName, seatNames })
+				if (!isSeatExist) {
+					const { seatNames: expectedSeats } = await Theater.findOne({ theaterName })
+					console.log({ expectedSeats });
+
+					return res.status(400).json({
+						error: `seat name ${seatNames} don't exist`,
+						"available seats names": expectedSeats
+
+					})
+				}
+			}
+
 			const isMovieExist = await Movie.exists({ movieName })
+			// what if movie don't exist?
 			if (!isMovieExist) {
 				const moviesData = await Movie.find()
 				const moviesNameList = moviesData.reduce((a, c) => [...a, c.movieName], [])
@@ -141,8 +282,8 @@ const postBooking = async (req, res) => {
 				})
 			}
 
-			
 			const isShowExist = await Show.exists({ showName })
+			// what if show don't exist?
 			if (!isShowExist) {
 				const showsData = await Show.find()
 				const showsNameList = showsData.reduce((a, c) => [...a, c.showName], [])
@@ -153,19 +294,28 @@ const postBooking = async (req, res) => {
 			}
 
 			const isBookingExist = await Booking.exists({ bookedString })
-			if (isBookingExist) return res.json({ error: "booking already exist" })
+			// what if booking ALREADY exist?
+			if (isBookingExist) return res.json({ error: "same booking already exist, please make changes" })
 
+		}
+		// what if someone has send a bad request?
+		//  like an empty object ?
+		else {
+			return res.status(400).json({
+				error: "please enter correct information"
+			})
 		}
 
 		// adding bookedString to booking Data
 		bookingData.bookedString = bookedString;
+		delete bookingData.bookingId;
 
 		// send bookingData to database
-		const addedBooking = await Booking.create(bookingData);
+		const updatedBooking = await Booking.findOneAndUpdate({ _id: bookingId }, bookingData, {lean: true});
 
 
 		// if success then then success msg
-		res.json(addedBooking)
+		res.json(updatedBooking)
 
 
 	} catch (error) {
@@ -175,7 +325,6 @@ const postBooking = async (req, res) => {
 		res.status(400).json({ error: error.message })
 	}
 
-};
+}
 
-
-module.exports = { postTheater, postMovie, postShow, postBooking }
+module.exports = { postTheater, postMovie, postShow, postBooking, editBooking }

@@ -1,9 +1,15 @@
 const mongoose = require('mongoose');
 
 
-// make both the schemas
+
+//  schemas theater
 const theaterSchema = new mongoose.Schema({
 	theaterName: { type: String, required: true },
+	seatNames: {
+		type: [{ type: String, required: true }],
+		default: undefined,
+		required: true
+	},
 	location: { type: String, required: true }
 })
 

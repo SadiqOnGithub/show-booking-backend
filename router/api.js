@@ -1,5 +1,5 @@
 const express = require('express');
-const { postTheater, postMovie, postShow, postBooking } = require('../controller/api');
+const { postTheater, postMovie, postShow, postBooking, editBooking } = require('../controller/api');
 const router = express.Router();
 
 
@@ -17,14 +17,13 @@ router.post('/show', postShow)
 
 
 // book tickets
-	// list movie by name | filter
-	// list theaters by location | filter
-
+	// list movie by name | filter | suggestion will be shown
+	// list theaters by location | filter | suggestion will be shown
 router.post('/booking', postBooking)
 
 
 // rescheduling bookings
-
+router.put('/booking', editBooking)
 
 
 
